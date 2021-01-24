@@ -4,9 +4,12 @@
 %Note1: Change the number of iterations for calculating average/general accuracy of prediction.
 
 %You can change attributes to test other options
-NumOfIterations = 1;
+NumOfIterations = 100;
 TestPartition = 0.1 ;
-MaxNumOfSplits = 37 ;
+MinParentSize = 50;
+MaxNumSplits = 200 ;
+%Which attr to be used in Decision Tree
+DecisionAttr = MinParentSize;
 
 %Create a table to observe results for attributes
 
@@ -61,7 +64,8 @@ stand_time = (data.time - mean(data.time)) / std(data.time);
 data.time = stand_time;
 
 %----------------------------- Classification and Prediction
-classification_model = fitctree(data, 'DEATH_EVENT~platelets+serum_creatinine+serum_sodium+sex+smoking+time+age+anaemia+creatinine_phosphokinase+diabetes+ejection_fraction+high_blood_pressure','MaxNumSplits',MaxNumOfSplits ); 
+classification_model = fitctree(data, 'DEATH_EVENT~platelets+serum_creatinine+time+serum_sodium+sex+smoking+age+anaemia+creatinine_phosphokinase+diabetes+ejection_fraction+high_blood_pressure','MinParentSize',DecisionAttr ); 
+
 
 general_accuracy = 0;
 for a = 1:NumOfIterations
@@ -91,11 +95,14 @@ end
     disp(AverageAccuracy);
 
     EmptyTable = cell2table({}); %Create an empty table
-    T = [NumOfIterations,TestPartition,MaxNumOfSplits,AverageAccuracy]; %Store results for end loop
+    T = [NumOfIterations,TestPartition,DecisionAttr,AverageAccuracy]; %Store results for end loop
     
     EmptyTable = [EmptyTable;array2table(T)];
-    EmptyTable.Properties.VariableNames = {'NumOfIterations' ,'Partition', 'MaxNumOfSplits' ,'AverageAccuracy'}
+    EmptyTable.Properties.VariableNames = {'NumOfIterations' ,'Partition', 'DecisionAttr' ,'AverageAccuracy'}
    
-    % EmptyTable.Properties.VariableNames = {'NumOfIterations' ,'Partition', 'MaxNumOfSplits' ,'AverageAccuracy'}
+    % EmptyTable.Properties.VariableNames = {'NumOfIterations' ,'Partition', 'DecisionAttr' ,'AverageAccuracy'}
     % Table = [Table;array2table(T)];
-    % T = table(NumOfIterations,Partition,MaxNumOfSplits,AverageAccuracy);
+    % T = table(NumOfIterations,Partition,DecisionAttr,AverageAccuracy);
+    
+    %----------------Visualize the result
+      view(cross_validated_model.Trained{1}, 'Mode', 'Graph');
