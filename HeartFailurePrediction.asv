@@ -4,8 +4,11 @@
 %Note1: Change the number of iterations for calculating average/general accuracy of prediction.
 
 %You can change attributes to test other options
-k = 10 ;
-Partition = ;
+NumOfIterations = 10;
+TestPartition = 0.1 ;
+MaxNumOfSplits = 37 ;
+
+%Create a table to observe results for attributes
 
 data = readtable('Dataset\heart_failure_clinical_records_dataset.csv');
 
@@ -58,12 +61,12 @@ stand_time = (data.time - mean(data.time)) / std(data.time);
 data.time = stand_time;
 
 %----------------------------- Classification and Prediction
-classification_model = fitctree(data, 'DEATH_EVENT~platelets+serum_creatinine+serum_sodium+sex+smoking+time+age+anaemia+creatinine_phosphokinase+diabetes+ejection_fraction+high_blood_pressure','MaxNumSplits',37 ); 
+classification_model = fitctree(data, 'DEATH_EVENT~platelets+serum_creatinine+serum_sodium+sex+smoking+time+age+anaemia+creatinine_phosphokinase+diabetes+ejection_fraction+high_blood_pressure','MaxNumSplits',MaxNumOfSplits ); 
 
 general_accuracy = 0;
-for a = 1:k
+for a = 1:NumOfIterations
     %----------------------------- Partition data into training and test set
-    cv = cvpartition(classification_model.NumObservations,'HoldOut', 0.1); %Built-in function for partitioning
+    cv = cvpartition(classification_model.NumObservations,'HoldOut', TestPartition); %Built-in function for partitioning
     cross_validated_model = crossval(classification_model, 'cvpartition', cv); %Use training set only to built model 
 
     %----------------------------- Perform Predictions on test set
@@ -82,9 +85,18 @@ for a = 1:k
 
 end
 
-    AverageAccuracy = general_accuracy / k; 
+    AverageAccuracy = general_accuracy / a; 
     %Print average accuracy 
     disp('Average accuracy is:');
     disp(AverageAccuracy);
 
+    EmptyTable = cell2table({}); %Create an empty table
+    T = [NumOfIterations,TestPartition,MaxNumOfSplits,AverageAccuracy]; %Store results for end loop
+    TableT = array2table(T) % Convert it to the table
+    
+    EmptyTable = [EmptyTable;array2table(T)];
     T = table(NumOfIterations,Partition,MaxNumOfSplits,AverageAccuracy);
+    
+    % EmptyTable.Properties.VariableNames = {'NumOfIterations' ,'Partition', 'MaxNumOfSplits' ,'AverageAccuracy'}
+    % Table = [Table;array2table(T)];
+    % T = table(NumOfIterations,Partition,MaxNumOfSplits,AverageAccuracy);

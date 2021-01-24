@@ -4,7 +4,7 @@
 %Note1: Change the number of iterations for calculating average/general accuracy of prediction.
 
 %You can change attributes to test other options
-NumOfIterations = 100;
+NumOfIterations = 1;
 TestPartition = 0.1 ;
 MaxNumOfSplits = 37 ;
 
@@ -90,4 +90,12 @@ end
     disp('Average accuracy is:');
     disp(AverageAccuracy);
 
-    %T = table(NumOfIterations,Partition,MaxNumOfSplits,AverageAccuracy);
+    EmptyTable = cell2table({}); %Create an empty table
+    T = [NumOfIterations,TestPartition,MaxNumOfSplits,AverageAccuracy]; %Store results for end loop
+    
+    EmptyTable = [EmptyTable;array2table(T)];
+    EmptyTable.Properties.VariableNames = {'NumOfIterations' ,'Partition', 'MaxNumOfSplits' ,'AverageAccuracy'}
+   
+    % EmptyTable.Properties.VariableNames = {'NumOfIterations' ,'Partition', 'MaxNumOfSplits' ,'AverageAccuracy'}
+    % Table = [Table;array2table(T)];
+    % T = table(NumOfIterations,Partition,MaxNumOfSplits,AverageAccuracy);
