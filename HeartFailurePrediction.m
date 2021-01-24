@@ -76,9 +76,6 @@ for a = 1:NumOfIterations
     %----------------------------- Perform Predictions on test set
     Predictions = predict(cross_validated_model.Trained{1}, data(test(cv),1:end-1));
 
-    %----------------------------- Confusion matris of results
-    Results = confusionmat(cross_validated_model.Y(test(cv)),Predictions);
-    
     %----------------------------- Analyzing the Result
     Results = confusionmat(cross_validated_model.Y(test(cv)),Predictions); 
     right_results = Results(1,1) + Results(2,2);
