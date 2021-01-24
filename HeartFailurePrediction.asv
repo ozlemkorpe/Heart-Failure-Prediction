@@ -3,6 +3,10 @@
 %Note1: Please check out the data path before run, fix if necessary.
 %Note1: Change the number of iterations for calculating average/general accuracy of prediction.
 
+%You can change attributes to test other options
+k = 10 ;
+Partition = ;
+
 data = readtable('Dataset\heart_failure_clinical_records_dataset.csv');
 
 % -----------------------------Column headers
@@ -21,9 +25,10 @@ data = readtable('Dataset\heart_failure_clinical_records_dataset.csv');
 % {'DEATH_EVENT'} : If the patient deceased during the follow-up period (boolean)
 
 %-----------------------------Handling Missing Values
+%Check for the missing data
+missing_rows = sum(ismissing(data)); %No missing data
 
 %-----------------------------Feature Scaling with Standardization
-
 % Age Scaling
 stand_age = (data.age - mean(data.age)) / std(data.age);
 data.age = stand_age;
@@ -52,6 +57,34 @@ data.serum_sodium = stand_serum_sodium;
 stand_time = (data.time - mean(data.time)) / std(data.time);
 data.time = stand_time;
 
-%------ Categorical Data without order relation
+%----------------------------- Classification and Prediction
+classification_model = fitctree(data, 'DEATH_EVENT~platelets+serum_creatinine+serum_sodium+sex+smoking+time+age+anaemia+creatinine_phosphokinase+diabetes+ejection_fraction+high_blood_pressure','MaxNumSplits',37 ); 
 
+general_accuracy = 0;
+for a = 1:k
+    %----------------------------- Partition data into training and test set
+    cv = cvpartition(classification_model.NumObservations,'HoldOut', 0.1); %Built-in function for partitioning
+    cross_validated_model = crossval(classification_model, 'cvpartition', cv); %Use training set only to built model 
 
+    %----------------------------- Perform Predictions on test set
+    Predictions = predict(cross_validated_model.Trained{1}, data(test(cv),1:end-1));
+
+    %----------------------------- Confusion matris of results
+    Results = confusionmat(cross_validated_model.Y(test(cv)),Predictions);
+    
+    %----------------------------- Analyzing the Result
+    Results = confusionmat(cross_validated_model.Y(test(cv)),Predictions); 
+    right_results = Results(1,1) + Results(2,2);
+    wrong_results = Results(1,2) + Results(2,1);
+
+    truth_score = right_results /(right_results + wrong_results);
+    general_accuracy = general_accuracy + truth_score;
+
+end
+
+    AverageAccuracy = general_accuracy / k; 
+    %Print average accuracy 
+    disp('Average accuracy is:');
+    disp(AverageAccuracy);
+
+    T = table(NumOfIterations,Partition,MaxNumOfSplits,AverageAccuracy);
