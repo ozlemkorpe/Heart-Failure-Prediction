@@ -60,3 +60,9 @@ Used confusion matrix to calculate accuracy and analyze score.
 ```
 
 In first experiments I used all of the attributes provided in the dataset by using different customizations of decision tree algorithm like setting maximum number of splits or minimum size of the parent. During these experiments I obtained the best results by decreasing the number maximum splits or increasing the size of the minimum parents. When I analyzed the decision tree plot, I saw that in these customization algorithm decides only by checking at the follow-up period time. Even If provides the best resulted predictions approximately 82%, I wanted to analyze the effect of other attributes excluding the time. With the time attribute, accuracy of  trained model is up to 0.83034%, in the other hand if the model is trained without time attribute has up to 0.74586%. If the time attribute is included into calculations, it has the most effect on the result. If excluded serum creatinine has the most effect as can be seen on the following diagram.
+
+## Data
+### Citation
+Davide Chicco, Giuseppe Jurman: Machine learning can predict survival of patients with heart failure from serum creatinine and ejection fraction alone. BMC Medical Informatics and Decision Making 20, 16 (2020). (link)
+###License
+CC BY 4.0
